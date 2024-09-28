@@ -1,8 +1,8 @@
 package orm;
 
-import orm.Annotations.Column;
-import orm.Annotations.Entity;
-import orm.Annotations.Id;
+import orm.annotations.Column;
+import orm.annotations.Entity;
+import orm.annotations.Id;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,16 +20,51 @@ public class EntityManager<E> implements DbContext<E> {
     }
 
     @Override
-    public boolean persist(E entity) throws IllegalAccessException, SQLException {
-        Field primaryKey = getId(entity.getClass());
-        primaryKey.setAccessible(true);
-        Object value = primaryKey.get(entity);
+    public void doCreate(Class<E> entityClass) throws SQLException {
+        String tableName = getTableName(entityClass);
+        String fieldsWithData = getAllFieldsAndDataTypes(entityClass);
 
-        if (value == null || (long) value <= 0) {
+        String query = String.format("CREATE TABLE %s (%s);", tableName, fieldsWithData);
+
+        PreparedStatement preparedStatement = conn.prepareStatement(query);
+        preparedStatement.executeUpdate();
+    }
+
+    @Override
+    public void doAlter(Class<E> entityClass) throws SQLException {
+        String tableName = getTableName(entityClass);
+        List<String> existingColumns = getAllExistingColumns(tableName);
+        List<String> fieldsToAdd = new ArrayList<>();
+
+        Arrays.stream(entityClass.getDeclaredFields())
+                .filter(field -> !existingColumns.contains(field.getName()))
+                .forEach(field -> {
+                    // Get the SQL data type for the field
+                    String fieldType = getFieldType(field);
+                    // Add the field and its type to the fieldsToAdd list
+                    fieldsToAdd.add(field.getName() + " " + fieldType);
+                });
+
+        // If there are new fields to add, construct the ALTER TABLE query
+        if (!fieldsToAdd.isEmpty()) {
+            String query = String.format("ALTER TABLE %s ADD %s;", tableName, String.join(", ", fieldsToAdd));
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+
+    @Override
+    public boolean persist(E entity) throws SQLException, IllegalAccessException {
+        Field idColumn = getIdColumn(entity);
+        idColumn.setAccessible(true);
+        Object idValue = idColumn.get(entity);
+
+        if (idValue == null || (long) idValue == 0) {
             return doInsert(entity);
         }
 
-        return false;
+        return doUpdate(entity, (long) idValue);
     }
 
     @Override
@@ -67,26 +102,28 @@ public class EntityManager<E> implements DbContext<E> {
     }
 
     @Override
-    public boolean deleteByUsername(E entity) throws IllegalAccessException, SQLException {
+    public boolean delete(E entity) throws IllegalAccessException, SQLException {
         String tableName = getTableName(entity);
-
-        Field usernameField = Arrays.stream(entity.getClass().getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(Column.class) && field.getName().equals("username"))
+        Field idField = Arrays.stream(entity.getClass().getDeclaredFields())
+                .filter(f -> f.isAnnotationPresent(Id.class))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Entity does not have a 'username' field annotated with @Column"));
+                .orElseThrow(() -> new RuntimeException("Entity has no Id column"));
 
-        usernameField.setAccessible(true);
+        idField.setAccessible(true);
+        long idValue = (long) idField.get(entity);  // Get the ID directly from the entity
 
-        Object usernameValue = usernameField.get(entity);
-        if (usernameValue == null) {
-            throw new IllegalArgumentException("Entity username value is null.");
-        }
-
-        String query = String.format("DELETE FROM %s WHERE %s = ?", tableName, usernameField.getName());
+        String query = String.format("DELETE FROM %s WHERE id = %d", tableName, idValue);
         PreparedStatement preparedStatement = conn.prepareStatement(query);
-        preparedStatement.setObject(1, usernameValue);
 
-        return preparedStatement.executeUpdate() >= 1;
+        int rowsAffected = preparedStatement.executeUpdate();
+
+        if (rowsAffected == 0) {
+            System.out.println("No rows deleted. The entity may not exist.");
+            return false;
+        } else {
+            System.out.printf("Deleted %d rows\n", rowsAffected);
+            return true;
+        }
     }
 
     private List<E> executeQueryAndFillEntities(String query, Class<E> table) throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -130,11 +167,16 @@ public class EntityManager<E> implements DbContext<E> {
         }
     }
 
-    private Field getId(Class<?> entity) {
-        return Arrays.stream(entity.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(Id.class))
-                .findFirst()
-                .orElseThrow(() -> new UnsupportedOperationException("Entry does not have primary key"));
+    private Field getIdColumn(E entity) {
+        Field[] declaredFields = entity.getClass().getDeclaredFields();
+
+        for (Field declaredField : declaredFields) {
+            if (declaredField.isAnnotationPresent(Id.class)) {
+                return declaredField;
+            }
+        }
+
+        throw new RuntimeException("Entity has no Id column");
     }
 
     private boolean doInsert(E entity) throws IllegalAccessException, SQLException {
@@ -155,7 +197,7 @@ public class EntityManager<E> implements DbContext<E> {
 
     private boolean doUpdate(E entity, Long idValue) throws IllegalAccessException, SQLException {
         String tableName = getTableName(entity);
-        String primaryKey = getId(entity.getClass()).getName();
+        String primaryKey = getIdColumn(entity).getName();
 
         // Get the columns and values for the entity, excluding the primary key
         List<String> columnsWithoutId = getColumnsWithoutId(entity);
@@ -221,5 +263,55 @@ public class EntityManager<E> implements DbContext<E> {
 
     private String getTableName(Class<E> table) {
         return table.getAnnotation(Entity.class).name();
+    }
+
+    private String getAllFieldsAndDataTypes(Class<E> entityClass) {
+        List<String> fieldsWithData = new ArrayList<>();
+
+        Arrays.stream(entityClass.getDeclaredFields())
+                .forEach(field -> {
+                            StringBuilder stringBuilder = new StringBuilder();
+                            stringBuilder.append(field.getName());
+                            stringBuilder.append(" ");
+                            stringBuilder.append(getFieldType(field));
+                            if (field.isAnnotationPresent(Id.class)) {
+                                stringBuilder.append(" AUTO_INCREMENT PRIMARY KEY");
+                            }
+                            fieldsWithData.add(stringBuilder.toString());
+                        }
+                );
+
+        return String.join(", ", fieldsWithData);
+    }
+
+    private String getFieldType(Field field) {
+        switch (field.getType().getSimpleName()) {
+            case "int" -> {
+                return "INT";
+            }
+            case "long" -> {
+                return "BIGINT";
+            }
+            case "String" -> {
+                return "VARCHAR(255)";
+            }
+            case "LocalDate" -> {
+                return "DATE";
+            }
+        }
+
+        return null;
+    }
+
+    private List<String> getAllExistingColumns(String tableName) throws SQLException {
+        PreparedStatement preparedStatement = conn.prepareStatement("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'mini_orm_db' AND TABLE_NAME = ?;");
+        preparedStatement.setString(1, tableName);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<String> existingColumns = new ArrayList<>();
+        while (resultSet.next()) {
+            existingColumns.add(resultSet.getString(1));
+        }
+
+        return existingColumns;
     }
 }

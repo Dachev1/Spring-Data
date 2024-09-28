@@ -1,8 +1,8 @@
 package entities;
 
-import orm.Annotations.Column;
-import orm.Annotations.Entity;
-import orm.Annotations.Id;
+import orm.annotations.Column;
+import orm.annotations.Entity;
+import orm.annotations.Id;
 
 import java.time.LocalDate;
 
@@ -18,15 +18,20 @@ public class User {
     @Column(name = "age")
     private int age;
 
-    @Column(name = "localDate")
+    @Column(name = "registration")
     private LocalDate registration;
 
-    public User() {}
+    @Column(name = "email")
+    private String email;
 
-    public User(String username, int age, LocalDate registration) {
+    public User() {
+    }
+
+    public User(String username, int age, LocalDate registration, String email) {
         this.username = username;
         this.age = age;
         this.registration = registration;
+        this.email = email;
     }
 
     public long getId() {
@@ -59,5 +64,13 @@ public class User {
 
     public void setRegistration(LocalDate registration) {
         this.registration = registration;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
