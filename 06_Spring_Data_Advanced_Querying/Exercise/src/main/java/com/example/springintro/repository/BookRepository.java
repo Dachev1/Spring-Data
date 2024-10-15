@@ -39,7 +39,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "FROM Book b " +
             "GROUP BY b.author.firstName, b.author.lastName " +
             "ORDER BY totalCopies DESC")
-    List<Object[]> findTotalBookCopiesByAuthorNames();
+    List<Object[]> findTotalBookCopiesByAuthorName();
+
+    BookInfo findByTitle(String title);
 
     List<Book> findAllBookByCopiesLessThan(int copies);
 

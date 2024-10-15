@@ -1,6 +1,7 @@
 package com.example.springintro.service;
 
 import com.example.springintro.model.entity.Book;
+import com.example.springintro.repository.BookInfo;
 import org.springframework.data.jpa.repository.Modifying;
 
 import java.beans.Transient;
@@ -41,4 +42,6 @@ public interface BookService {
     int deleteBooksWithCopiesLessThan(int copiesCount);
 
     int getTotalBooksByAuthor(String firstName, String lastName);
+
+    BookInfo findInfoByTitle(String title);
 }

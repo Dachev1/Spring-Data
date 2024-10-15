@@ -3,14 +3,13 @@ package com.example.springintro.service.impl;
 import com.example.springintro.model.entity.*;
 import com.example.springintro.model.entity.enums.AgeRestriction;
 import com.example.springintro.model.entity.enums.EditionType;
+import com.example.springintro.repository.BookInfo;
 import com.example.springintro.repository.BookRepository;
 import com.example.springintro.service.AuthorService;
 import com.example.springintro.service.BookService;
 import com.example.springintro.service.CategoryService;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
-import java.beans.Transient;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -149,7 +148,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void printTotalBookCopiesByAuthorNames() {
-        List<Object[]> results = bookRepository.findTotalBookCopiesByAuthorNames();
+        List<Object[]> results = bookRepository.findTotalBookCopiesByAuthorName();
 
         results.forEach(result -> {
             String firstName = (String) result[0];
@@ -183,6 +182,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public int getTotalBooksByAuthor(String firstName, String lastName) {
         return bookRepository.getTotalBooksByAuthor(firstName, lastName);
+    }
+
+    @Override
+    public BookInfo findInfoByTitle(String title) {
+        return this.bookRepository.findByTitle(title);
     }
 
     private Book createBookFromInfo(String[] bookInfo) {

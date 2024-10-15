@@ -1,6 +1,7 @@
 package com.example.springintro;
 
 import com.example.springintro.model.entity.Book;
+import com.example.springintro.repository.BookInfo;
 import com.example.springintro.service.AuthorService;
 import com.example.springintro.service.BookService;
 import com.example.springintro.service.CategoryService;
@@ -67,6 +68,8 @@ public class CommandLineRunnerImpl implements CommandLineRunner {
         // this.bookService.printTotalBookCopiesByAuthorNames();
 
         // ex_11
+        // BookInfo bookInfo = this.bookService.findInfoByTitle("Things Fall Apart");
+        // System.out.println(bookInfo.getEditionType());
 
         // ex_12
         // this.bookService.increaseTheCopiesForTheBooksAfterGivenReleaseDate("12 Oct 2005", 1000);
@@ -75,7 +78,7 @@ public class CommandLineRunnerImpl implements CommandLineRunner {
         // System.out.println(this.bookService.deleteBooksWithCopiesLessThan(3700));
 
         // ex_14
-//        printTotalBooksByAuthor("Christina", "Jordan");
+       //printTotalBooksByAuthor("Christina", "Jordan");
     }
 
     private void printTotalBooksByAuthor(String firstName, String lastName) {
