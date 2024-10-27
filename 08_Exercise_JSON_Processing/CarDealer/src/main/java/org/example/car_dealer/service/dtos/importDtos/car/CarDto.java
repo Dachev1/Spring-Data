@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-public class CarDto {
+import java.io.Serializable;
+
+public class CarDto implements Serializable {
     @NotNull
     @Size(min = 3, max = 50)
     private String make;

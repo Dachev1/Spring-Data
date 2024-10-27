@@ -5,7 +5,9 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
-public class PartDto {
+import java.io.Serializable;
+
+public class PartDto implements Serializable {
     @NotNull
     @Size(min = 3, max = 100)
     private String name;

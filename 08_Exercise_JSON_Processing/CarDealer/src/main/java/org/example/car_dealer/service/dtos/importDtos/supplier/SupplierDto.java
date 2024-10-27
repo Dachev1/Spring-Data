@@ -3,7 +3,9 @@ package org.example.car_dealer.service.dtos.importDtos.supplier;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class SupplierDto {
+import java.io.Serializable;
+
+public class SupplierDto implements Serializable {
     @NotNull
     @Size(min = 3, max = 100)
     private String name;

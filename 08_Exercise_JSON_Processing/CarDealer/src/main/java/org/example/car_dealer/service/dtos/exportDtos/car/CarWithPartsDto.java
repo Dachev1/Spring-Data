@@ -2,9 +2,10 @@ package org.example.car_dealer.service.dtos.exportDtos.car;
 
 import org.example.car_dealer.service.dtos.exportDtos.part.PartForCarsDto;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class CarWithPartsDto {
+public class CarWithPartsDto implements Serializable {
     private String make;
     private String model;
     private double travelledDistance;

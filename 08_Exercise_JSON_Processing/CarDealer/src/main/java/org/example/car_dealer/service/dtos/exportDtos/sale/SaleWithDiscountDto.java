@@ -2,7 +2,9 @@ package org.example.car_dealer.service.dtos.exportDtos.sale;
 
 import org.example.car_dealer.service.dtos.exportDtos.car.CarInfoDto;
 
-public class SaleWithDiscountDto {
+import java.io.Serializable;
+
+public class SaleWithDiscountDto implements Serializable {
     private CarInfoDto car;
     private String customerName;
     private double discount;

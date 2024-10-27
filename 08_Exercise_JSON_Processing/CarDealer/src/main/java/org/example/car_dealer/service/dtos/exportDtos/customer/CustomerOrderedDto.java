@@ -2,9 +2,10 @@ package org.example.car_dealer.service.dtos.exportDtos.customer;
 
 import org.example.car_dealer.service.dtos.exportDtos.sale.SaleDto;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class CustomerOrderedDto {
+public class CustomerOrderedDto implements Serializable {
     private Long id;
     private String name;
     private String birthDate;

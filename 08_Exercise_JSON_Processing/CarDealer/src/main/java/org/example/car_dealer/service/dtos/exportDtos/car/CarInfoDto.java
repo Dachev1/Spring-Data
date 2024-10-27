@@ -1,6 +1,8 @@
 package org.example.car_dealer.service.dtos.exportDtos.car;
 
-public class CarInfoDto {
+import java.io.Serializable;
+
+public class CarInfoDto implements Serializable {
 
     private String make;
 
