@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
-
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:include="~{fragments/head}"></th:block>
 </head>
@@ -11,14 +9,14 @@
 </header>
 <main>
     <div class="jumbotron">
-
-        <form >
+        <form>
             <div class="col-md-12 d-flex justify-content-center">
                 <label class="display-4" for="export-project-textarea">Finished projects:</label>
             </div>
             <div class="col-md-12 d-flex justify-content-center">
                 <div class="col-md-8 d-flex justify-content-center">
-                    <textarea class="form-control" id="export-project-textarea" rows="20" th:text="${projectsIfFinished}" readonly></textarea>
+                    <textarea class="form-control" id="export-project-textarea" rows="20"
+                              th:text="${projectsIfFinished}" readonly></textarea>
                 </div>
             </div>
         </form>

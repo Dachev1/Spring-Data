@@ -20,9 +20,6 @@
                 <h4 class="display-4">Please follow the import order: Companies → Projects → Employees.</h4>
             </div>
             <div class="col-md-12 d-flex justify-content-center">
-                <h5 class="display-6">Click the buttons below to import XML.</h5>
-            </div>
-            <div class="col-md-12 d-flex justify-content-center">
                 <th:block th:if="${!companiesImported}">
                     <a class="btn bg-black glow-button mx-5 my-5" th:href="@{/import/companies}">Import Companies</a>
                 </th:block>

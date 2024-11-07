@@ -1,13 +1,27 @@
-<th:block th:fragment>
+<th:block th:fragment="head">
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title th:text="${title}"></title>
-    <link rel="icon" th:href="${favicon}">
+    <title th:text="${title}">Next Level Technologies</title>
+    <link rel="icon" th:href="@{/images/favicon.ico}">
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+
+    <!-- Reset CSS (Optional, if applicable) -->
     <link rel="stylesheet" th:href="@{/css/reset-css.css}">
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" th:href="@{/css/demo.css}">
-    <link rel ="script" th:href="@{https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js}">
-    <link rel ="script" th:href="@{http://code.jquery.com/jquery-3.3.1.slim.min.js}">
+
+    <!-- jQuery (necessary for Bootstrap JavaScript) -->
+    <script th:src="@{https://code.jquery.com/jquery-3.3.1.slim.min.js}"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+
+    <!-- Bootstrap Bundle JavaScript -->
+    <script th:src="@{https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js}"
+            integrity="sha384-B0UglyR+oiizkTsjSO4KR1oq1W34vS2eRt6azWVOQuUAMSa/V6cGJS0ZX0L0zKGI"
+            crossorigin="anonymous"></script>
 </th:block>
